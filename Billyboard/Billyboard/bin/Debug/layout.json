@@ -1,0 +1,31 @@
+﻿{
+  "version": "1.0",
+  "elements": [
+    {
+      "typeName": "image",
+      "id": "adcf52a7-f1ab-4e98-9b91-0f1e3d40d638",
+      "name": "",
+      "location": {
+        "x": 68,
+        "y": 35
+      },
+      "size": {
+        "width": 166,
+        "height": 166
+      }
+    },
+    {
+      "typeName": "image",
+      "id": "6af68e4e-ac1c-4b1d-af0c-635f8d8bea84",
+      "name": "",
+      "location": {
+        "x": -1040,
+        "y": -1040
+      },
+      "size": {
+        "width": 100,
+        "height": 100
+      }
+    }
+  ]
+}

@@ -12,7 +12,7 @@ namespace Billyboard.Controls.Designer.Core
 {
     public class LayoutLoader
     {
-        public Layout Load(string fileName)
+        public static Layout Load(string fileName)
         {
             string content = File.ReadAllText(fileName, Encoding.UTF8);
             JObject jObject = JObject.Parse(content); ;
@@ -30,7 +30,7 @@ namespace Billyboard.Controls.Designer.Core
             return layout;
         }
 
-        public void Save(string fileName, Layout layout)
+        public static void Save(string fileName, Layout layout)
         {
             JObject jObject = new JObject();
 

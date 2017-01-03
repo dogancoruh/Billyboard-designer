@@ -18,3 +18,13 @@ C:\Users\dogan_coruh\Desktop\Gazelle\source\Gazelle\test\Billyboard\Billyboard.C
 C:\Users\dogan_coruh\Desktop\Gazelle\source\Gazelle\test\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.csproj.GenerateResource.Cache
 C:\Users\dogan_coruh\Desktop\Gazelle\source\Gazelle\test\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.dll
 C:\Users\dogan_coruh\Desktop\Gazelle\source\Gazelle\test\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.pdb
+E:\repo\billyboard\Billyboard\Billyboard.Controls\bin\Debug\Billyboard.Controls.dll
+E:\repo\billyboard\Billyboard\Billyboard.Controls\bin\Debug\Billyboard.Controls.pdb
+E:\repo\billyboard\Billyboard\Billyboard.Controls\bin\Debug\Newtonsoft.Json.dll
+E:\repo\billyboard\Billyboard\Billyboard.Controls\bin\Debug\Newtonsoft.Json.xml
+E:\repo\billyboard\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.csprojResolveAssemblyReference.cache
+E:\repo\billyboard\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.Designer.Control.DesignerControl.resources
+E:\repo\billyboard\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.Properties.Resources.resources
+E:\repo\billyboard\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.csproj.GenerateResource.Cache
+E:\repo\billyboard\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.dll
+E:\repo\billyboard\Billyboard\Billyboard.Controls\obj\Debug\Billyboard.Controls.pdb

@@ -1,0 +1,5 @@
+E:\repo\billyboard\Billyboard\DocumentFramework\bin\Debug\DocumentFramework.dll
+E:\repo\billyboard\Billyboard\DocumentFramework\bin\Debug\DocumentFramework.pdb
+E:\repo\billyboard\Billyboard\DocumentFramework\obj\Debug\DocumentFramework.dll
+E:\repo\billyboard\Billyboard\DocumentFramework\obj\Debug\DocumentFramework.pdb
+E:\repo\billyboard\Billyboard\DocumentFramework\obj\Debug\DocumentFramework.csprojResolveAssemblyReference.cache

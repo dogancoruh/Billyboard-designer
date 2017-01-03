@@ -14,5 +14,11 @@ namespace Billyboard.Controls.Designer.Data
         public Point ViewportLocation { get; set; }
         public Size ViewportSize { get; set; }
         public double ZoomRatio { get; set; }
+        public Point ControlMouseDownLocation { get; set; }
+        public Point ControlMouseMoveLocation { get; set; }
+        public Point DesignAreaMouseDownLocation { get; set; }
+        public Point DesignAreaMouseMoveLocation { get; set; }
+        public Point SelectedElementLocation { get; set; }
+        public Size SelectedElementSize { get; set; }
     }
 }

@@ -21,6 +21,9 @@ namespace Billyboard.Controls.Designer.Data
         public Point Location { get; set; }
         public Size Size { get; set; }
 
+        public virtual Size MinimumSize { get; set; }
+        public virtual Size MaximumSize { get; set; }
+
         public Rectangle Bounds
         {
             get
@@ -36,6 +39,8 @@ namespace Billyboard.Controls.Designer.Data
             Name = string.Empty;
             Location = Point.Empty;
             Size = Size.Empty;
+            MinimumSize = new Size(5, 5);
+            MaximumSize = new Size(int.MaxValue, int.MaxValue);
         }
     }
 }

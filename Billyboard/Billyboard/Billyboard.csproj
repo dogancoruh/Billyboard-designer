@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Crad.Windows.Forms.Actions, Version=1.3.0.0, Culture=neutral, PublicKeyToken=81de48f2c6979a5b, processorArchitecture=MSIL">
+      <HintPath>..\packages\ActionListWinForms.1.3.0.0\lib\net40\Crad.Windows.Forms.Actions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -66,6 +70,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -83,6 +88,10 @@
     <ProjectReference Include="..\Billyboard.Controls\Billyboard.Controls.csproj">
       <Project>{7eabe925-e1f2-477e-9891-6342a76baee8}</Project>
       <Name>Billyboard.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DocumentFramework\DocumentFramework.csproj">
+      <Project>{61835990-11ca-435f-989c-e1c6928c19db}</Project>
+      <Name>DocumentFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

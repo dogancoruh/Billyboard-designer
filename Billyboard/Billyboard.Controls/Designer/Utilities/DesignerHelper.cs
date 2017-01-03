@@ -95,7 +95,7 @@ namespace Billyboard.Controls.Designer.Utilities
                 graphics.FillRoundedRectangle(brushHandle, new Rectangle(elementLocation.Subtract(handleSize.Half()).AddX(elementSize.Width / 2).AddY(elementSize.Height), handleSize), 2);
                 graphics.DrawRoundedRectangle(penRectangle, new Rectangle(elementLocation.Subtract(handleSize.Half()).AddX(elementSize.Width / 2).AddY(elementSize.Height), handleSize), 2);
             }
-
+            
             if (handleType == TransformHandleType.All || handleType == TransformHandleType.OnlyCorners)
             {
                 graphics.FillRoundedRectangle(brushHandle, new Rectangle(elementLocation.Subtract(handleSize.Half()).AddX(elementSize.Width).AddY(elementSize.Height), handleSize), 2);
@@ -132,7 +132,7 @@ namespace Billyboard.Controls.Designer.Utilities
 
             rectangle = new Rectangle(elementLocation.Subtract(handleSize.Half()).AddX(elementSize.Width).AddY(elementSize.Height / 2), handleSize);
             if (rectangle.Contains(location))
-                return TransformHandle.Left;
+                return TransformHandle.Right;
 
             rectangle = new Rectangle(elementLocation.Subtract(handleSize.Half()).AddY(elementSize.Height), handleSize);
             if (rectangle.Contains(location))
@@ -213,9 +213,39 @@ namespace Billyboard.Controls.Designer.Utilities
             return new Rectangle(minimumX, minimumY, maximumX - minimumX, maximumY - minimumY);
         }
 
-        public static void SizeElement(LayoutElement layoutElement, TransformHandle transformHandle, Point designAreaDownLocation, Point designAreaMoveLocation)
+        public static void SizeElement(LayoutElement layoutElement,
+                                       TransformHandle transformHandle,
+                                       Point interactionLocation,
+                                       Size interactionSize,
+                                       Point viewportLocation,
+                                       Point designAreaDownLocation,
+                                       Point designAreaMoveLocation)
         {
-
+            switch (transformHandle)
+            {
+                case TransformHandle.None:
+                    break;
+                case TransformHandle.TopLeft:
+                    break;
+                case TransformHandle.TopCenter:
+                    break;
+                case TransformHandle.TopRight:
+                    break;
+                case TransformHandle.Left:
+                    break;
+                case TransformHandle.Right:
+                    break;
+                case TransformHandle.BottomLeft:
+                    break;
+                case TransformHandle.BottomCenter:
+                    break;
+                case TransformHandle.BottomRight:
+                    layoutElement.Size = new Size(viewportLocation.X - designAreaMoveLocation.X - interactionLocation.X,
+                                                  viewportLocation.Y - designAreaMoveLocation.Y - interactionLocation.Y);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

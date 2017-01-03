@@ -56,6 +56,7 @@
     <Compile Include="Designer\Core\LayoutElementFactory.cs" />
     <Compile Include="Designer\Core\LayoutElementSerializer.cs" />
     <Compile Include="Designer\Core\LayoutLoader.cs" />
+    <Compile Include="Designer\Core\PivotLocation.cs" />
     <Compile Include="Designer\Core\VisualLayoutElementSerializer.cs" />
     <Compile Include="Designer\Data\ImageElement.cs" />
     <Compile Include="Designer\Core\Layout.cs" />

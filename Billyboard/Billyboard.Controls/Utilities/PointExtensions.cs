@@ -113,5 +113,10 @@ namespace System
         {
             return new Point(point.X / 2, point.Y / 2);
         }
+
+        public static Size ToSize(this Point point)
+        {
+            return new Size(point.X, point.Y);
+        }
     }
 }

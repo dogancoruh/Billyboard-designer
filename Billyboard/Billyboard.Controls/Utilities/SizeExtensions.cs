@@ -78,5 +78,10 @@ namespace System
         {
             return ((double)size.Width) / ((double)size.Height);
         }
+
+        public static Point ToPoint(this Size size)
+        {
+            return new Point(size.Width, size.Height);
+        }
     }
 }

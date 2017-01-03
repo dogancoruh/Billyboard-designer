@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Billyboard.Controls.Designer.Core;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,9 @@ namespace Billyboard.Controls.Designer.Data
             get { return true; }
         }
         public int Rotation { get; set; }
+
+        public PivotLocation PivotLocation { get; set; }
+        public Point PivotPoint { get; set; }
 
         public virtual bool Resizable
         {

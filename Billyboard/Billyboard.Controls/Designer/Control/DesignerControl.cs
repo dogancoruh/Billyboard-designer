@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Billyboard.Controls.Designer.Data;
-using Billyboard.Controls.Designer.Renderer;
 using Billyboard.Controls.Utilities;
 using Billyboard.Controls.Designer.Utilities;
-using System.Drawing.Drawing2D;
-using Billyboard.Controls.Designer.Core;
 
 namespace Billyboard.Controls.Designer.Control
 {
@@ -45,11 +37,31 @@ namespace Billyboard.Controls.Designer.Control
         private List<LayoutElement> selectedElements;
         private List<Point> selectedElementOffsets;
 
+        public LayoutElement SelectedElement
+        {
+            get
+            {
+                if (selectedElements != null && selectedElements.Count > 0)
+                    return selectedElements[0];
+                else
+                    return null;
+            }
+        }
+
+        private Dictionary<string, Type> elementTypes;
         private Dictionary<string, LayoutElementRenderer> elementRenderers;
 
         private double ZoomRatio
         {
             get { return layout != null ? layout.ZoomRatio : 1.0; }
+        }
+
+        public void AddElementType(string typeName, Type type)
+        {
+            if (!elementTypes.ContainsKey(typeName))
+                elementTypes.Add(typeName, type);
+            else
+                throw new Exception(string.Format("Element type already registered for type [{0}]", typeName));
         }
 
         // workspace
@@ -107,6 +119,17 @@ namespace Billyboard.Controls.Designer.Control
         private bool mouseHitsSelection;
         private Point controlMouseDownLocation;
         private Point controlMouseMoveLocation;
+
+        public Point DesignAreaMouseDownLocation
+        {
+            get { return controlMouseDownLocation.Add(ViewportLocation).Subtract(DesignAreaLocation); }
+        }
+
+        public Point DesignAreaMouseMoveLocation
+        {
+            get { return controlMouseMoveLocation.Add(ViewportLocation).Subtract(DesignAreaLocation); }
+        }
+
         private PanSource panSource = PanSource.None;
         private TransformHandle transformHandle;
 
@@ -125,6 +148,8 @@ namespace Billyboard.Controls.Designer.Control
         }
 
         private InteractionState interactionState;
+        private Point interactionLocation;
+        private Size interactionSize;
 
         private Rectangle SelectionRectangle
         {
@@ -137,7 +162,9 @@ namespace Billyboard.Controls.Designer.Control
         public DesignerControl()
         {
             InitializeComponent();
-            InitializeElementRenderers();
+
+            elementTypes = new Dictionary<string, Type>();
+            elementRenderers = new Dictionary<string, LayoutElementRenderer>();
 
             BackColor = ColorTranslator.FromHtml("#ebecef");
 
@@ -163,11 +190,6 @@ namespace Billyboard.Controls.Designer.Control
                                          vScrollBar.Value);
 
             Refresh();
-        }
-
-        private void InitializeElementRenderers()
-        {
-            elementRenderers = new Dictionary<string, LayoutElementRenderer>();
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -286,6 +308,8 @@ namespace Billyboard.Controls.Designer.Control
             layoutProperties.ViewportLocation = ViewportLocation;
             layoutProperties.ViewportSize = ViewportSize;
             layoutProperties.ZoomRatio = ZoomRatio;
+            layoutProperties.ControlMouseDownLocation = controlMouseDownLocation;
+            layoutProperties.ControlMouseMoveLocation = controlMouseMoveLocation;
 
             if (selectedElements != null)
             {
@@ -308,11 +332,9 @@ namespace Billyboard.Controls.Designer.Control
                     foreach (LayoutElement selectedElement in selectedElements)
                     {
                         Point selectedElementLocation = selectedElement.Location.Multiply(ZoomRatio);
+
                         selectedElementLocation = selectedElementLocation.Add(DesignAreaLocation);
                         selectedElementLocation = selectedElementLocation.Subtract(ViewportLocation);
-
-                        Console.WriteLine(string.Format("x > {0}", controlMouseMoveLocation.X - selectedElementLocation.X));
-                        Console.WriteLine(string.Format("y > {0}", controlMouseMoveLocation.Y - selectedElementLocation.Y));
 
                         selectedElementOffsets.Add(new Point(controlMouseMoveLocation.X - selectedElementLocation.X,
                                                              controlMouseMoveLocation.Y - selectedElementLocation.Y));
@@ -322,8 +344,9 @@ namespace Billyboard.Controls.Designer.Control
                 if (interactionState == InteractionState.SizeAttempt && DesignerHelper.ExceedsThreshold(controlMouseMoveLocation, controlMouseDownLocation, SIZE_THRESHOLD))
                 {
                     interactionState = InteractionState.Size;
-
-                    DesignerHelper.SizeElement(selectedElements[0], transformHandle, controlMouseDownLocation, controlMouseMoveLocation);
+                    interactionLocation = SelectedElement.Location;
+                    interactionSize = SelectedElement.Size;
+                    needsRefresh = true;
                 }
 
                 if (interactionState == InteractionState.Move)
@@ -341,6 +364,176 @@ namespace Billyboard.Controls.Designer.Control
 
                         selectedElement.Location = new Point(selectedElementX, selectedElementY).Divide(ZoomRatio);
                     }
+
+                    needsRefresh = true;
+                }
+
+                if (interactionState == InteractionState.Size)
+                {
+                    int locationX = interactionLocation.X;
+                    int locationY = interactionLocation.Y;
+                    int sizeWidth = interactionSize.Width;
+                    int sizeHeight = interactionSize.Height;
+
+                    if (!KeyboardHelper.IsShiftKeyPressed)
+                    {
+                        if (transformHandle == TransformHandle.TopLeft)
+                        {
+                            locationX = DesignAreaMouseMoveLocation.X;
+                            locationY = DesignAreaMouseMoveLocation.Y;
+                            sizeWidth = interactionLocation.X + interactionSize.Width - DesignAreaMouseMoveLocation.X;
+                            sizeHeight = interactionLocation.Y + interactionSize.Height - DesignAreaMouseMoveLocation.Y;
+                        }
+                        else if (transformHandle == TransformHandle.TopCenter)
+                        {
+                            locationX = interactionLocation.X;
+                            locationY = DesignAreaMouseMoveLocation.Y;
+                            sizeWidth = interactionSize.Width;
+                            sizeHeight = interactionLocation.Y + interactionSize.Height - DesignAreaMouseMoveLocation.Y;
+                        }
+                        else if (transformHandle == TransformHandle.TopRight)
+                        {
+                            locationX = interactionLocation.X;
+                            locationY = DesignAreaMouseMoveLocation.Y;
+                            sizeWidth = DesignAreaMouseMoveLocation.X - interactionLocation.X;
+                            sizeHeight = interactionLocation.Y + interactionSize.Height - DesignAreaMouseMoveLocation.Y;
+                        }
+                        else if (transformHandle == TransformHandle.Left)
+                        {
+                            locationX = DesignAreaMouseMoveLocation.X;
+                            locationY = interactionLocation.Y;
+                            sizeWidth = interactionLocation.X + interactionSize.Width - DesignAreaMouseMoveLocation.X;
+                            sizeHeight = interactionSize.Height;
+                        }
+                        else if (transformHandle == TransformHandle.Right)
+                        {
+                            sizeWidth = DesignAreaMouseMoveLocation.X - interactionLocation.X;
+                        }
+                        else if (transformHandle == TransformHandle.BottomLeft)
+                        {
+                            locationX = DesignAreaMouseMoveLocation.X;
+                            locationY = interactionLocation.Y;
+                            sizeWidth = interactionLocation.X + interactionSize.Width - DesignAreaMouseMoveLocation.X;
+                            sizeHeight = DesignAreaMouseMoveLocation.Y - interactionLocation.Y;
+                        }
+                        else if (transformHandle == TransformHandle.BottomCenter)
+                        {
+                            sizeHeight = DesignAreaMouseMoveLocation.Y - interactionLocation.Y;
+                        }
+                        else if (transformHandle == TransformHandle.BottomRight)
+                        {
+                            sizeWidth = DesignAreaMouseMoveLocation.X - interactionLocation.X;
+                            sizeHeight = DesignAreaMouseMoveLocation.Y - interactionLocation.Y;
+                        }
+                    }
+                    else
+                    {
+                        Point pA;
+                        Point pK;
+                        double m;
+                        int pPX;
+                        int pPY;
+
+                        if (transformHandle == TransformHandle.TopLeft)
+                        {
+                            pA = new Point(interactionLocation.X + interactionSize.Width,
+                                       interactionLocation.Y + interactionSize.Height);
+                            pK = DesignAreaMouseMoveLocation;
+                            m = (double)interactionSize.Height / (double)interactionSize.Width;
+
+                            pPX = (int)(((m * ((pA.X * m) - pA.Y + pK.Y)) + pK.X) / ((m * m) + 1));
+                            pPY = (int)(((pPX - pA.X) * m) + pA.Y);
+
+                            if (pA.X - pPX < SelectedElement.MinimumSize.Width)
+                                locationX = pA.X - SelectedElement.MinimumSize.Width;
+                            else
+                                locationX = pPX;
+
+                            if (pA.Y - pPY < SelectedElement.MinimumSize.Height)
+                                locationY = pA.Y - SelectedElement.MinimumSize.Height;
+                            else
+                                locationY = pPY;
+
+                            sizeWidth = pA.X - pPX;
+                            sizeHeight = pA.Y - pPY;
+                        }
+                        else if (transformHandle == TransformHandle.TopRight)
+                        {
+                            pA = new Point(interactionLocation.X,
+                                       interactionLocation.Y + interactionSize.Height);
+                            pK = DesignAreaMouseMoveLocation;
+                            m = -(double)interactionSize.Height / (double)interactionSize.Width;
+
+                            pPX = (int)(((m * ((pA.X * m) - pA.Y + pK.Y)) + pK.X) / ((m * m) + 1));
+                            pPY = (int)(((pPX - pA.X) * m) + pA.Y);
+
+                            if (pA.Y - pPY < SelectedElement.MinimumSize.Height)
+                                locationY = pA.Y - SelectedElement.MinimumSize.Height;
+                            else
+                                locationY = pPY;
+
+                            sizeWidth = pPX - pA.X;
+                            sizeHeight = pA.Y - pPY;
+                        }
+                        else if (transformHandle == TransformHandle.BottomLeft)
+                        {
+                            pA = new Point(interactionLocation.X + interactionSize.Width,
+                                       interactionLocation.Y);
+                            pK = DesignAreaMouseMoveLocation;
+                            m = -(double)interactionSize.Height / (double)interactionSize.Width;
+
+                            pPX = (int)(((m * ((pA.X * m) - pA.Y + pK.Y)) + pK.X) / ((m * m) + 1));
+                            pPY = (int)(((pPX - pA.X) * m) + pA.Y);
+
+                            if (pA.X - pPX < SelectedElement.MinimumSize.Width)
+                                locationX = pA.X - SelectedElement.MinimumSize.Width;
+                            else
+                                locationX = pPX;
+
+                            sizeWidth = pA.X - pPX;
+                            sizeHeight = pPY - pA.Y;
+                        }
+                        else if (transformHandle == TransformHandle.BottomRight)
+                        {
+                            pA = new Point(interactionLocation.X,
+                                       interactionLocation.Y);
+                            pK = DesignAreaMouseMoveLocation;
+                            m = (double)interactionSize.Height / (double)interactionSize.Width;
+
+                            pPX = (int)(((m * ((pA.X * m) - pA.Y + pK.Y)) + pK.X) / ((m * m) + 1));
+                            pPY = (int)(((pPX - pA.X) * m) + pA.Y);
+
+                            sizeWidth = pPX - pA.X;
+                            sizeHeight = pPY - pA.Y;
+                        }
+                    }
+
+                    if (locationX > interactionLocation.X + interactionSize.Width - SelectedElement.MinimumSize.Width)
+                        locationX = interactionLocation.X + interactionSize.Width - SelectedElement.MinimumSize.Width;
+
+                    if (locationY > interactionLocation.Y + interactionSize.Height - SelectedElement.MinimumSize.Height)
+                        locationY = interactionLocation.Y + interactionSize.Height - SelectedElement.MinimumSize.Height;
+
+                    if (locationX < interactionLocation.X + interactionSize.Width - SelectedElement.MaximumSize.Width)
+                        locationX = interactionLocation.X + interactionSize.Width - SelectedElement.MaximumSize.Width;
+
+                    if (locationY < interactionLocation.Y + interactionSize.Height - SelectedElement.MaximumSize.Height)
+                        locationY = interactionLocation.Y + interactionSize.Height - SelectedElement.MaximumSize.Height;
+
+                    if (sizeWidth < SelectedElement.MinimumSize.Width)
+                        sizeWidth = SelectedElement.MinimumSize.Width;
+
+                    if (sizeHeight < SelectedElement.MinimumSize.Height)
+                        sizeHeight = SelectedElement.MinimumSize.Height;
+
+                    if (sizeWidth > SelectedElement.MaximumSize.Width)
+                        sizeWidth = SelectedElement.MaximumSize.Width;
+
+                    if (sizeHeight > SelectedElement.MaximumSize.Height)
+                        sizeHeight = SelectedElement.MaximumSize.Height;
+
+                    SelectedElement.Location = new Point(locationX, locationY);
+                    SelectedElement.Size = new Size(sizeWidth, sizeHeight);
 
                     needsRefresh = true;
                 }
@@ -494,6 +687,27 @@ namespace Billyboard.Controls.Designer.Control
 
                 DrawInteractionState(e.Graphics, interactionState);
             }
+
+            RefreshLayoutProperties();
+        }
+
+        private void RefreshLayoutProperties()
+        {
+            LayoutProperties layoutProperties = new LayoutProperties();
+
+            layoutProperties.ControlMouseDownLocation = controlMouseDownLocation;
+            layoutProperties.ControlMouseMoveLocation = controlMouseMoveLocation;
+            layoutProperties.DesignAreaLocation = DesignAreaLocation;
+            layoutProperties.DesignAreaSize = DesignAreaSize;
+            layoutProperties.ViewportLocation = ViewportLocation;
+            layoutProperties.ViewportSize = ViewportSize;
+            layoutProperties.ZoomRatio = ZoomRatio;
+            layoutProperties.DesignAreaMouseDownLocation = DesignAreaMouseDownLocation;
+            layoutProperties.DesignAreaMouseMoveLocation = DesignAreaMouseMoveLocation;
+            layoutProperties.SelectedElementLocation = SelectedElement != null ? SelectedElement.Location : Point.Empty;
+            layoutProperties.SelectedElementSize = SelectedElement != null ? SelectedElement.Size : Size.Empty;
+
+            propertyGrid.SelectedObject = layoutProperties;
         }
 
         private void DrawDesignArea(Graphics graphics)
@@ -686,6 +900,16 @@ namespace Billyboard.Controls.Designer.Control
         private void buttonViewportCenter_Click(object sender, EventArgs e)
         {
             CenterViewport();
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            if (isMouseDown && (m.Msg == 256 || m.Msg == 257))
+            {
+                Refresh();
+            }
         }
     }
 }

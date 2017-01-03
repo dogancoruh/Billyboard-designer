@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,9 @@ namespace Billyboard.Controls.Designer.Data
 {
     public class Layout
     {
+        const int VERSION_MAJOR = 1;
+        const int VERSION_MINOR = 0;
+
         private List<LayoutElement> elements;
 
         public List<LayoutElement> Elements
@@ -92,6 +97,55 @@ namespace Billyboard.Controls.Designer.Data
             }
             else
                 return false;
+        }
+
+        public void SaveToFile(string fileName)
+        {
+            JObject jObject = new JObject();
+
+            jObject["version"] = string.Format("{0}.{1}", VERSION_MAJOR, VERSION_MINOR);
+
+            JArray jArrayElements = new JArray();
+
+            foreach (var element in Elements)
+            {
+                JObject jObjectElement = new JObject();
+
+                jObjectElement["typeName"] = element.TypeName;
+                jObjectElement["id"] = element.UniqueId.ToString();
+                jObjectElement["name"] = element.Name;
+
+                // location
+                var jObjectLocation = new JObject();
+                jObjectLocation["x"] = element.Location.X;
+                jObjectLocation["y"] = element.Location.Y;
+                jObjectElement["location"] = jObjectLocation;
+
+                // size
+                var jObjectSize = new JObject();
+                jObjectSize["width"] = element.Size.Width;
+                jObjectSize["height"] = element.Size.Height;
+                jObjectElement["size"] = jObjectSize;
+
+                jArrayElements.Add(jObjectElement);
+            }
+
+            jObject["elements"] = jArrayElements;
+
+            File.WriteAllText(fileName, jObject.ToString(), Encoding.UTF8);
+        }
+
+        public void LoadFromFile(string fileName)
+        {
+            var content = File.ReadAllText(fileName, Encoding.UTF8);
+            JObject jObject = JObject.Parse(content);
+
+            Elements.Clear();
+            var jArrayElements = (JArray)jObject["elements"];
+            foreach (var jObjectElement in jArrayElements)
+            {
+                
+            }
         }
     }
 }
